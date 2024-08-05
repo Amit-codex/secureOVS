@@ -1,80 +1,166 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Cast = () => {
   const [candidates, setCandidates] = useState([]);
   const [selectedCandidate, setSelectedCandidate] = useState('');
+  const [hasVoted, setHasVoted] = useState(false); // Track if the user has voted
+  const [error, setError] = useState(null); // Track any error messages
   const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch candidates from the backend
-    axios.get('http://localhost:3002/api/candidates')
-      .then(response => {
-        console.log('Candidates fetched:', response.data); // Log the fetched candidates
-        setCandidates(response.data);
-      })
-      .catch(error => console.error('Error fetching candidates:', error));
+    const fetchCandidates = async () => {
+      try {
+        const response = await axios.get('/api/candidates');
+        if (response.status === 200) {
+          setCandidates(response.data);
+        } else {
+          console.error('Error fetching candidates: Unexpected response status:', response.status);
+          setError('Failed to fetch candidates. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error fetching candidates:', error.response ? error.response.data : error.message);
+        setError('Failed to fetch candidates. Please try again.');
+      }
+    };
+
+    fetchCandidates();
   }, []);
 
-  const handleVote = async () => {
+  const handleVote = async (e) => {
+    e.preventDefault();
+
     if (!selectedCandidate) {
-      alert('Please select a candidate');
+      alert('Please select a candidate.');
       return;
     }
 
     try {
-      // Post the vote without voter number
-      const response = await axios.post('http://localhost:3002/api/vote', { candidate_id: selectedCandidate });
-      alert(response.data.message);
-      navigate('/confirmvote'); // Redirect to vote confirmation page
+      const response = await axios.post('/api/vote', { candidateId: selectedCandidate });
+      if (response.status === 200) {
+        setHasVoted(true);
+        setError(null); // Clear any previous error messages
+      } else {
+        console.error('Error casting vote: Unexpected response status:', response.status);
+        setError('Failed to cast vote. Please try again.');
+      }
     } catch (error) {
-      console.error('Error casting vote:', error);
-      alert('Error casting vote. Please try again.');
+      console.error('Error casting vote:', error.response ? error.response.data : error.message);
+      setError('Failed to cast vote. Please try again.'); // Set error message
     }
+  };
+
+  // Render candidate details manually
+  const renderCandidates = () => {
+    return (
+      <>
+        {candidates.length > 0 && (
+          <div className="form-check">
+            <input
+              type="radio"
+              id={candidates[0].candidate_id}
+              name="candidate"
+              value={candidates[0].candidate_id}
+              className="form-check-input"
+              onChange={(e) => setSelectedCandidate(e.target.value)}
+            />
+            <label htmlFor={candidates[0].candidate_id} className="form-check-label">
+              <div className="d-flex align-items-center">
+                <img
+                  src={candidates[0].picture}
+                  alt={candidates[0].candidate_name}
+                  className="img-thumbnail me-3"
+                  style={{ width: '100px', height: '100px' }}
+                />
+                <div>
+                  <h5>{candidates[0].candidate_name}</h5>
+                  <p><strong>Party:</strong> {candidates[0].candidate_party}</p>
+                  <p><strong>Block Number:</strong> {candidates[0].block_number}</p>
+                </div>
+              </div>
+            </label>
+          </div>
+        )}
+        {candidates.length > 1 && (
+          <div className="form-check">
+            <input
+              type="radio"
+              id={candidates[1].candidate_id}
+              name="candidate"
+              value={candidates[1].candidate_id}
+              className="form-check-input"
+              onChange={(e) => setSelectedCandidate(e.target.value)}
+            />
+            <label htmlFor={candidates[1].candidate_id} className="form-check-label">
+              <div className="d-flex align-items-center">
+                <img
+                  src={candidates[1].picture}
+                  alt={candidates[1].candidate_name}
+                  className="img-thumbnail me-3"
+                  style={{ width: '100px', height: '100px' }}
+                />
+                <div>
+                  <h5>{candidates[1].candidate_name}</h5>
+                  <p><strong>Party:</strong> {candidates[1].candidate_party}</p>
+                  <p><strong>Block Number:</strong> {candidates[1].block_number}</p>
+                </div>
+              </div>
+            </label>
+          </div>
+        )}
+        {candidates.length > 2 && (
+          <div className="form-check">
+            <input
+              type="radio"
+              id={candidates[2].candidate_id}
+              name="candidate"
+              value={candidates[2].candidate_id}
+              className="form-check-input"
+              onChange={(e) => setSelectedCandidate(e.target.value)}
+            />
+            <label htmlFor={candidates[2].candidate_id} className="form-check-label">
+              <div className="d-flex align-items-center">
+                <img
+                  src={candidates[2].picture}
+                  alt={candidates[2].candidate_name}
+                  className="img-thumbnail me-3"
+                  style={{ width: '100px', height: '100px' }}
+                />
+                <div>
+                  <h5>{candidates[2].candidate_name}</h5>
+                  <p><strong>Party:</strong> {candidates[2].candidate_party}</p>
+                  <p><strong>Block Number:</strong> {candidates[2].block_number}</p>
+                </div>
+              </div>
+            </label>
+          </div>
+        )}
+        {/* Add more conditions if you have more candidates */}
+      </>
+    );
   };
 
   return (
     <div className="container mt-5">
-      <h1>Cast Your Vote</h1>
-      <form>
-        <table className="table table-bordered">
-          <thead>
-            <tr>
-              <th>Select</th>
-              <th>Picture</th>
-              <th>Candidate Name</th>
-              <th>Party</th>
-            </tr>
-          </thead>
-          <tbody>
-            {candidates.map(candidate => (
-              <tr key={candidate.candidate_id}>
-                <td>
-                  <input
-                    type="radio"
-                    name="candidate"
-                    value={candidate.candidate_id}
-                    onChange={(e) => setSelectedCandidate(e.target.value)}
-                    checked={selectedCandidate === candidate.candidate_id}
-                  />
-                </td>
-                <td>
-                  <img
-                    src={`http://localhost:3002/uploads/${candidate.picture}`} // Adjust the path if needed
-                    alt={candidate.candidate_name}
-                    style={{ width: '50px', height: '50px' }} // Set the size of the image
-                  />
-                </td>
-                <td>{candidate.candidate_name}</td>
-                <td>{candidate.candidate_party}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <button type="button" className="btn btn-primary" onClick={handleVote}>Vote</button>
-      </form>
+      <h2 className="mb-4">Cast Your Vote</h2>
+      {hasVoted ? (
+        <div className="alert alert-success" role="alert">
+          Your vote has been cast successfully!
+        </div>
+      ) : (
+        <form onSubmit={handleVote}>
+          <h4>Select a Candidate:</h4>
+          <div className="mb-3">
+            {renderCandidates()}
+          </div>
+          {error && <div className="alert alert-danger" role="alert">{error}</div>} {/* Display error message if any */}
+          <button type="submit" className="btn btn-primary">
+            Submit Vote
+          </button>
+        </form>
+      )}
     </div>
   );
 };

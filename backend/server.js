@@ -432,59 +432,95 @@ app.put('/api/admin/updateCandidate/:id', verifyAdminToken, upload.single('pictu
   });
 });
 
+// Route to delete a candidate by ID
+app.delete('/api/admin/deleteCandidate/:id', verifyAdminToken, (req, res) => {
+  const candidateId = req.params.id;
 
-// Route to get all candidates
-app.get('/api/candidates', (req, res) => {
-  const query = 'SELECT candidate_name, candidate_party, block_number, picture FROM candidates';
-  
-  db.query(query, (err, results) => {
+  // Delete the candidate from the database
+  const query = 'DELETE FROM candidates WHERE candidate_id = ?';
+
+  db.query(query, [candidateId], (err, results) => {
     if (err) {
-      console.error('Error fetching candidates:', err);
+      console.error('Error deleting candidate:', err);
       return res.status(500).json({ message: 'Server error' });
     }
-    res.status(200).json(results);
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ message: 'Candidate not found' });
+    }
+    res.status(200).json({ message: 'Candidate deleted successfully' });
   });
 });
 
-// Add the verify-voter route directly
-app.post('/api/verify-voter', async (req, res) => {
-  const { voterNumber } = req.body;
-  try {
-    const [result] = await db.promise().query('SELECT * FROM voters WHERE voter_number = ?', [voterNumber]);
-    if (result.length > 0) {
-      res.json({ verified: true });
-    } else {
-      res.json({ verified: false });
+
+
+// Route to fetch all candidates
+app.get('/api/candidates', (req, res) => {
+  const query = 'SELECT candidate_id, candidate_name, candidate_party, block_number, picture FROM candidates';
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching candidates:', err);
+      return res.status(500).json({ message: 'Error fetching candidates' });
     }
-  } catch (error) {
-    res.status(500).json({ error: 'Database error' });
-  }
+    res.json(results);
+  });
 });
 
 
 
-app.post('/api/vote', async (req, res) => {
-  const { voterNumber, candidate_id } = req.body;
+// Route to verify voter number
+app.post('/api/verify-voter', (req, res) => {
+  const { voterNumber } = req.body;
 
-  // Hash the voter number
-  const voterHash = crypto.createHash('sha256').update(voterNumber).digest('hex');
+  if (!voterNumber) {
+    return res.status(400).json({ error: 'Voter number is required' });
+  }
 
-  try {
-    // Check if the voter has already voted
-    const [voterVote] = await db.promise().query('SELECT * FROM voter_votes WHERE voter_hash = ?', [voterHash]);
-    if (voterVote.length > 0) {
-      return res.status(400).json({ message: 'You have already voted.' });
+  const query = 'SELECT * FROM voters WHERE voter_number = ?';
+
+  db.query(query, [voterNumber], (err, results) => {
+    if (err) {
+      console.error('Error verifying voter number:', err);
+      return res.status(500).json({ error: 'Server error' });
     }
 
-    // Record the vote in the result table
-    await db.promise().query('INSERT INTO result (candidate_id) VALUES (?)', [candidate_id]);
+    if (results.length > 0) {
+      // Voter number found
+      res.json({ verified: true });
+    } else {
+      // Voter number not found
+      res.json({ verified: false });
+    }
+  });
+});
 
-    // Record the voter's vote
-    await db.promise().query('INSERT INTO voter_votes (voter_hash, candidate_id) VALUES (?, ?)', [voterHash, candidate_id]);
 
-    res.status(200).json({ message: 'Vote cast successfully.' });
-  } catch (error) {
-    console.error('Error casting vote:', error);
-    res.status(500).json({ message: 'Error casting vote', error });
+
+// Vote route
+app.post('/api/vote', (req, res) => {
+  const { candidateId } = req.body;
+
+  if (!candidateId) {
+    return res.status(400).json({ error: 'Candidate ID is required' });
   }
+
+  // Check if the candidate exists
+  db.query('SELECT * FROM candidates WHERE id = ?', [candidateId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database query error' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Candidate not found' });
+    }
+
+    // Insert vote into result table
+    db.query('INSERT INTO result (candidate_id) VALUES (?)', [candidateId], (err) => {
+      if (err) {
+        return res.status(500).json({ error: 'Error inserting vote' });
+      }
+
+      res.status(200).json({ message: 'Vote successfully cast' });
+    });
+  });
 });

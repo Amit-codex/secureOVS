@@ -1,6 +1,6 @@
-// UpdateCandidate.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const UpdateCandidate = () => {
   const [candidateId, setCandidateId] = useState('');
@@ -82,62 +82,106 @@ const UpdateCandidate = () => {
     }
   };
 
-  return (
-    <div>
-      <h1>Update Candidate</h1>
-      <input
-        type="text"
-        value={candidateId}
-        onChange={handleIdChange}
-        placeholder="Enter Candidate ID"
-      />
-      <button onClick={searchCandidate}>Search</button>
+  // Delete candidate
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`http://localhost:3002/api/admin/deleteCandidate/${candidateId}`, {
+        withCredentials: true
+      });
+      setSuccess('Candidate deleted successfully');
+      setError('');
+      setCandidateDetails(null); // Clear candidate details from the state
+      setUpdatedDetails({
+        candidate_name: '',
+        candidate_party: '',
+        block_number: '',
+        picture: null
+      });
+    } catch (err) {
+      setError('Error deleting candidate');
+      setSuccess('');
+    }
+  };
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {success && <p style={{ color: 'green' }}>{success}</p>}
+  return (
+    <div className="container mt-5">
+      <h1 className="mb-4">Update Candidate</h1>
+      <div className="mb-4">
+        <input
+          type="text"
+          className="form-control"
+          value={candidateId}
+          onChange={handleIdChange}
+          placeholder="Enter Candidate ID"
+        />
+        <button
+          className="btn btn-primary mt-2"
+          onClick={searchCandidate}
+        >
+          Search
+        </button>
+      </div>
+
+      {error && <p className="text-danger">{error}</p>}
+      {success && <p className="text-success">{success}</p>}
 
       {candidateDetails && (
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label>Candidate Name:</label>
+        <form onSubmit={handleSubmit} className="border p-4 rounded shadow-sm bg-light">
+          <div className="mb-3">
+            <label htmlFor="candidate_name" className="form-label">Candidate Name:</label>
             <input
               type="text"
+              id="candidate_name"
               name="candidate_name"
+              className="form-control"
               value={updatedDetails.candidate_name}
               onChange={handleInputChange}
               required
             />
           </div>
-          <div>
-            <label>Candidate Party:</label>
+          <div className="mb-3">
+            <label htmlFor="candidate_party" className="form-label">Candidate Party:</label>
             <input
               type="text"
+              id="candidate_party"
               name="candidate_party"
+              className="form-control"
               value={updatedDetails.candidate_party}
               onChange={handleInputChange}
               required
             />
           </div>
-          <div>
-            <label>Block Number:</label>
+          <div className="mb-3">
+            <label htmlFor="block_number" className="form-label">Block Number:</label>
             <input
               type="text"
+              id="block_number"
               name="block_number"
+              className="form-control"
               value={updatedDetails.block_number}
               onChange={handleInputChange}
               required
             />
           </div>
-          <div>
-            <label>Picture:</label>
+          <div className="mb-3">
+            <label htmlFor="picture" className="form-label">Picture:</label>
             <input
               type="file"
+              id="picture"
               name="picture"
+              className="form-control"
               accept="image/*"
               onChange={handleFileChange}
             />
           </div>
-          <button type="submit">Update Candidate</button>
+          <button type="submit" className="btn btn-primary">Update Candidate</button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="btn btn-danger ms-3"
+          >
+            Delete Candidate
+          </button>
         </form>
       )}
     </div>

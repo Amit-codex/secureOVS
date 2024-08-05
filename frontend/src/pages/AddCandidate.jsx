@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AddCandidate = () => {
   const [candidateId, setCandidateId] = useState('');
   const [candidateName, setCandidateName] = useState('');
   const [candidateParty, setCandidateParty] = useState('');
   const [blockNumber, setBlockNumber] = useState('');
-  const [pictureFile, setPictureFile] = useState(null);  // State to hold the selected file
-  const [successMessage, setSuccessMessage] = useState('');  // State to hold success message
-  const [errorMessage, setErrorMessage] = useState('');  // State to hold error message
+  const [pictureFile, setPictureFile] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleFileChange = (e) => {
-    setPictureFile(e.target.files[0]);  // Update state with the selected file
+    setPictureFile(e.target.files[0]);
   };
 
   const handleSubmit = async (e) => {
@@ -22,7 +23,7 @@ const AddCandidate = () => {
     formData.append('candidate_name', candidateName);
     formData.append('candidate_party', candidateParty);
     formData.append('block_number', blockNumber);
-    formData.append('picture', pictureFile);  // Append the file to FormData
+    formData.append('picture', pictureFile);
 
     try {
       const response = await axios.post('http://localhost:3002/api/admin/addCandidate', formData, {
@@ -32,65 +33,78 @@ const AddCandidate = () => {
         }
       });
       setSuccessMessage('Candidate added successfully');
-      setErrorMessage('');  // Clear error message if successful
+      setErrorMessage('');
       console.log('Candidate added:', response.data);
     } catch (error) {
       console.error('Error adding candidate:', error);
-      setErrorMessage('Error adding candidate');  // Set error message on failure
-      setSuccessMessage('');  // Clear success message if there's an error
+      setErrorMessage('Error adding candidate');
+      setSuccessMessage('');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Candidate ID:</label>
-        <input
-          type="text"
-          value={candidateId}
-          onChange={(e) => setCandidateId(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <label>Candidate Name:</label>
-        <input
-          type="text"
-          value={candidateName}
-          onChange={(e) => setCandidateName(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <label>Candidate Party:</label>
-        <input
-          type="text"
-          value={candidateParty}
-          onChange={(e) => setCandidateParty(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <label>Block Number:</label>
-        <input
-          type="text"
-          value={blockNumber}
-          onChange={(e) => setBlockNumber(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <label>Picture:</label>
-        <input
-          type="file"
-          onChange={handleFileChange}  // Handle file selection
-          required
-        />
-      </div>
-      <button type="submit">Add Candidate</button>
-      {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}  {/* Display success message */}
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}  {/* Display error message */}
-    </form>
+    <div className="container mt-5">
+      <h2 className="mb-4">Add Candidate</h2>
+      <form onSubmit={handleSubmit} className="border p-4 rounded shadow-sm bg-light">
+        <div className="mb-3">
+          <label htmlFor="candidateId" className="form-label">Candidate ID:</label>
+          <input
+            type="text"
+            id="candidateId"
+            className="form-control"
+            value={candidateId}
+            onChange={(e) => setCandidateId(e.target.value)}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="candidateName" className="form-label">Candidate Name:</label>
+          <input
+            type="text"
+            id="candidateName"
+            className="form-control"
+            value={candidateName}
+            onChange={(e) => setCandidateName(e.target.value)}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="candidateParty" className="form-label">Candidate Party:</label>
+          <input
+            type="text"
+            id="candidateParty"
+            className="form-control"
+            value={candidateParty}
+            onChange={(e) => setCandidateParty(e.target.value)}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="blockNumber" className="form-label">Block Number:</label>
+          <input
+            type="text"
+            id="blockNumber"
+            className="form-control"
+            value={blockNumber}
+            onChange={(e) => setBlockNumber(e.target.value)}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="picture" className="form-label">Picture:</label>
+          <input
+            type="file"
+            id="picture"
+            className="form-control"
+            onChange={handleFileChange}
+            required
+          />
+        </div>
+        <button type="submit" className="btn btn-primary">Add Candidate</button>
+        {successMessage && <p className="mt-3 text-success">{successMessage}</p>}
+        {errorMessage && <p className="mt-3 text-danger">{errorMessage}</p>}
+      </form>
+    </div>
   );
 };
 

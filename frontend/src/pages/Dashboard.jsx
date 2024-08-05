@@ -6,7 +6,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const handleCastVote = () => {
-    navigate('/verify'); // Redirect to the cast vote page
+    navigate('/cast'); // Redirect to the cast vote page
   };
 
   const handleCandidateDetails = () => {

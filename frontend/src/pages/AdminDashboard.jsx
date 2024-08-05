@@ -31,14 +31,6 @@ const AdminDashboard = () => {
                     Update Voter
                   </button>
                 </li>
-                <li className="list-group-item">
-                  <button
-                    className="btn btn-info btn-block"
-                    onClick={() => navigate('/voterdetails')}
-                  >
-                    Voter Details
-                  </button>
-                </li>
               </ul>
             </div>
           </div>

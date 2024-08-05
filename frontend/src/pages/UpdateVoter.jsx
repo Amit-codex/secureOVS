@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const UpdateVoter = () => {
   const [voterNumber, setVoterNumber] = useState('');
@@ -13,6 +14,7 @@ const UpdateVoter = () => {
         withCredentials: true,
       });
       setVoterData(response.data.voter);
+      setMessage('');
     } catch (error) {
       console.error('Error fetching voter details:', error.response ? error.response.data : error.message);
       setMessage(error.response ? error.response.data.message : 'Error fetching voter details');
@@ -45,32 +47,104 @@ const UpdateVoter = () => {
   };
 
   return (
-    <div>
-      <h2>Update Voter</h2>
-      <input
-        type="text"
-        placeholder="Enter Voter Number"
-        value={voterNumber}
-        onChange={(e) => setVoterNumber(e.target.value)}
-      />
-      <button onClick={handleSearch}>Search</button>
+    <div className="container mt-5">
+      <h2 className="mb-4">Update Voter</h2>
+      <div className="row mb-4">
+        <div className="col-md-6">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Enter Voter Number"
+            value={voterNumber}
+            onChange={(e) => setVoterNumber(e.target.value)}
+          />
+        </div>
+        <div className="col-md-6">
+          <button className="btn btn-primary" onClick={handleSearch}>
+            Search
+          </button>
+        </div>
+      </div>
 
       {voterData && (
-        <div>
-          <h3>Voter Details</h3>
-          <p>Name: <input type="text" value={updatedDetails.name || voterData.name} onChange={(e) => setUpdatedDetails({ ...updatedDetails, name: e.target.value })} /></p>
-          <p>Phone Number: <input type="text" value={updatedDetails.phone_number || voterData.phone_number} onChange={(e) => setUpdatedDetails({ ...updatedDetails, phone_number: e.target.value })} /></p>
-          <p>Email: <input type="email" value={updatedDetails.email || voterData.email} onChange={(e) => setUpdatedDetails({ ...updatedDetails, email: e.target.value })} /></p>
-          <p>Date of Birth: <input type="date" value={updatedDetails.date_of_birth || voterData.date_of_birth} onChange={(e) => setUpdatedDetails({ ...updatedDetails, date_of_birth: e.target.value })} /></p>
-          <p>Gender: <input type="text" value={updatedDetails.gender || voterData.gender} onChange={(e) => setUpdatedDetails({ ...updatedDetails, gender: e.target.value })} /></p>
-          <p>Address: <input type="text" value={updatedDetails.address || voterData.address} onChange={(e) => setUpdatedDetails({ ...updatedDetails, address: e.target.value })} /></p>
-          
-          <button onClick={handleUpdate}>Update</button>
-          <button onClick={handleDelete}>Delete</button>
+        <div className="card p-4">
+          <h3 className="mb-4">Voter Details</h3>
+          <div className="form-group mb-3">
+            <label htmlFor="name">Name:</label>
+            <input
+              type="text"
+              id="name"
+              className="form-control"
+              value={updatedDetails.name || voterData.name}
+              onChange={(e) => setUpdatedDetails({ ...updatedDetails, name: e.target.value })}
+            />
+          </div>
+          <div className="form-group mb-3">
+            <label htmlFor="phone_number">Phone Number:</label>
+            <input
+              type="text"
+              id="phone_number"
+              className="form-control"
+              value={updatedDetails.phone_number || voterData.phone_number}
+              onChange={(e) => setUpdatedDetails({ ...updatedDetails, phone_number: e.target.value })}
+            />
+          </div>
+          <div className="form-group mb-3">
+            <label htmlFor="email">Email:</label>
+            <input
+              type="email"
+              id="email"
+              className="form-control"
+              value={updatedDetails.email || voterData.email}
+              onChange={(e) => setUpdatedDetails({ ...updatedDetails, email: e.target.value })}
+            />
+          </div>
+          <div className="form-group mb-3">
+            <label htmlFor="date_of_birth">Date of Birth:</label>
+            <input
+              type="date"
+              id="date_of_birth"
+              className="form-control"
+              value={updatedDetails.date_of_birth || voterData.date_of_birth}
+              onChange={(e) => setUpdatedDetails({ ...updatedDetails, date_of_birth: e.target.value })}
+            />
+          </div>
+          <div className="form-group mb-3">
+            <label htmlFor="gender">Gender:</label>
+            <input
+              type="text"
+              id="gender"
+              className="form-control"
+              value={updatedDetails.gender || voterData.gender}
+              onChange={(e) => setUpdatedDetails({ ...updatedDetails, gender: e.target.value })}
+            />
+          </div>
+          <div className="form-group mb-3">
+            <label htmlFor="address">Address:</label>
+            <input
+              type="text"
+              id="address"
+              className="form-control"
+              value={updatedDetails.address || voterData.address}
+              onChange={(e) => setUpdatedDetails({ ...updatedDetails, address: e.target.value })}
+            />
+          </div>
+          <div className="mt-3">
+            <button className="btn btn-success me-2" onClick={handleUpdate}>
+              Update
+            </button>
+            <button className="btn btn-danger" onClick={handleDelete}>
+              Delete
+            </button>
+          </div>
         </div>
       )}
 
-      {message && <p>{message}</p>}
+      {message && (
+        <div className="mt-4 alert alert-info" role="alert">
+          {message}
+        </div>
+      )}
     </div>
   );
 };

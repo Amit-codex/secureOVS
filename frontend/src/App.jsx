@@ -14,9 +14,9 @@ import UpdateVoter from './pages/UpdateVoter';
 import AddCandidate from './pages/AddCandidate';
 import UpdateCandidate from './pages/UpdateCandidate';
 import CandiInfo from './pages/CandiInfo';
-import Cast from './pages/Cast';
 import Verify from './pages/Verify';
 import VoteConfirmation from './pages/VoteConfirmation';
+import Cast from './pages/Cast';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -38,9 +38,9 @@ function App() {
         <Route path="/addcandidate" element={<AddCandidate />} />
         <Route path="/updatecandidate" element={<UpdateCandidate />} />
         <Route path="/candiinfo" element={<CandiInfo />} />
-        <Route path="/cast" element={<Cast />} />
         <Route path="/verify" element={<Verify />} />
         <Route path="/confirmvote" element={<VoteConfirmation />} />
+        <Route path="/cast" element={<Cast />} />
       </Routes>
     </Router>
   );
